@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-service
+  namespace: lending-system
+  labels:
+    app: loan-service
+spec:
+  replicas: 10 # Scale ngang 10 máy chủ ngay từ ban đầu
+  selector:
+    matchLabels:
+      app: loan-service
+  template:
+    metadata:
+      labels:
+        app: loan-service
+    spec:
+      containers:
+      - name: loan-service
+        image: lending-repo/loan-service:v1.0.0
+        ports:
+        - containerPort: 8081
+        
+        # 1. Quản trị Tài nguyên sống còn (Resource Limits)
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+            
+        # 2. Mắt Thần y tế K8s (Liveness & Readiness Probes)
+        # Giúp K8s tự bắn bỏ và khởi tạo lại Container nếu bị treo ngầm
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 5
+
+        envFrom:
+        - configMapRef:
+            name: loan-service-config
+        - secretRef:
+            name: loan-service-secrets
+
+---
+# 3. Kích thước Scale Tự Động bằng Thước đo HPA (Horizontal Pod Autoscaler)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: loan-service-hpa
+  namespace: lending-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: loan-service
+  minReplicas: 3
+  maxReplicas: 50 # Khi hàng triệu User vay tiền, tự nở ra tối đa 50 máy chủ!
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70 # Hễ CPU vượt 70% là K8s tự động đẻ thêm Container mới

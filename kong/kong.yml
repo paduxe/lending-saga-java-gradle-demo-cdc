@@ -1,0 +1,55 @@
+_format_version: "3.2"
+
+# 1. KONG DECLARATIVE CONFIGURATION (DB-LESS MODE)
+# Không sử dụng Database riêng cho Kong để tiết kiệm tài nguyên.
+# Đọc trực tiếp cấu hình Route từ file YML tĩnh này.
+
+services:
+  # Cấu hình "Đích đến" (Upstream Service)
+  - name: loan-backend-service
+    url: http://loan-service:8082
+    routes:
+      - name: loan-route
+        paths:
+          - /api/loans
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          second: 5
+          hour: 10000
+          policy: local
+      # ĐÃ XÓA key-auth. Bây giờ Kong chỉ làm Cổng Định Tuyến (Routing) và Chống DDoS (Rate Limiting).
+      # Việc xác thực danh tính (JWT Validation) sẽ giao toàn quyền cho Spring Security của Backend tự lo.
+
+  - name: kyc-backend-service
+    url: http://kyc-service:8083
+    routes:
+      - name: kyc-route
+        paths:
+          - /api/kyc
+        strip_path: false
+
+  - name: credit-backend-service
+    url: http://credit-service:8084
+    routes:
+      - name: credit-route
+        paths:
+          - /api/credit
+        strip_path: false
+
+  - name: disbursement-backend-service
+    url: http://disbursement-service:8085
+    routes:
+      - name: disbursement-route
+        paths:
+          - /api/disbursement
+        strip_path: false
+
+  - name: orchestrator-query-service
+    url: http://loan-orchestrator-service:8080
+    routes:
+      - name: orchestrator-route
+        paths:
+          - /api/sagas
+        strip_path: false

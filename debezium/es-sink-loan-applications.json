@@ -1,0 +1,18 @@
+{
+  "name": "es-sink-loan-applications",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "loan_db.public.loan_application",
+    "key.ignore": "false",
+    "connection.url": "http://elasticsearch:9200",
+    "type.name": "_doc",
+    "behavior.on.null.values": "DELETE",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "transforms": "ExtractField",
+    "transforms.ExtractField.type": "org.apache.kafka.connect.transforms.ExtractField$Value",
+    "transforms.ExtractField.field": "after"
+  }
+}

@@ -1,0 +1,28 @@
+type Query {
+    loanDetails(loanId: ID!): LoanApplication
+}
+
+type LoanApplication {
+    loanApplicationId: ID
+    customerId: String
+    amount: Float
+    status: String
+    productType: String
+    createdAt: String
+    # 🚀 Dữ liệu Aggregate từ KYC Service
+    customer: CustomerInfo
+    # 🚀 Dữ liệu Aggregate từ Credit Service
+    credit: CreditInfo
+}
+
+type CustomerInfo {
+    isBlocked: Boolean
+    status: String
+    reason: String
+}
+
+type CreditInfo {
+    isQualified: Boolean
+    availableLimit: Float
+    reason: String
+}

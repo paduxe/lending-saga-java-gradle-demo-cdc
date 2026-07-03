@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loan-service-monitor
+  namespace: lending-saga
+  labels:
+    release: prometheus # Label này giúp Prometheus Operator tự động nhận diện
+spec:
+  selector:
+    matchLabels:
+      app: loan-service
+  endpoints:
+  - port: web # Phải map với cổng 8081 ở Service
+    path: /actuator/prometheus
+    interval: 10s # Cứ 10 giây Prometheus sẽ chọc vào Loan Service thu thập số liệu 1 lần
+    scrapeTimeout: 3s

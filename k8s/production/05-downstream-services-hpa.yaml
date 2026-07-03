@@ -1,0 +1,155 @@
+# K8s manifests cover TOÀN BỘ downstream services (KYC, Credit, Disbursement, Orchestrator)
+# KYC SERVICE ===============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyc-service
+  namespace: lending-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kyc-service
+  template:
+    metadata:
+      labels:
+        app: kyc-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector: { matchExpressions: [{key: app, operator: In, values: [kyc-service]}] }
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: kyc-service
+        image: loan-kyc-service:latest
+        ports: [{containerPort: 8082}]
+        envFrom: [{configMapRef: {name: app-config}}, {secretRef: {name: app-secrets}}]
+        livenessProbe: {httpGet: {path: /actuator/health/liveness, port: 8082}, initialDelaySeconds: 30, periodSeconds: 10}
+        readinessProbe: {httpGet: {path: /actuator/health/readiness, port: 8082}, initialDelaySeconds: 30, periodSeconds: 10}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: kyc-service-hpa, namespace: lending-prod}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: kyc-service}
+  minReplicas: 3
+  maxReplicas: 30
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 75}}}]
+
+# CREDIT SERVICE ===============================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-service
+  namespace: lending-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: credit-service
+  template:
+    metadata:
+      labels:
+        app: credit-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector: { matchExpressions: [{key: app, operator: In, values: [credit-service]}] }
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: credit-service
+        image: loan-credit-service:latest
+        ports: [{containerPort: 8083}]
+        envFrom: [{configMapRef: {name: app-config}}, {secretRef: {name: app-secrets}}]
+        livenessProbe: {httpGet: {path: /actuator/health/liveness, port: 8083}, initialDelaySeconds: 30, periodSeconds: 10}
+        readinessProbe: {httpGet: {path: /actuator/health/readiness, port: 8083}, initialDelaySeconds: 30, periodSeconds: 10}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: credit-service-hpa, namespace: lending-prod}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: credit-service}
+  minReplicas: 3
+  maxReplicas: 30
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 75}}}]
+
+# DISBURSEMENT SERVICE =========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disbursement-service
+  namespace: lending-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: disbursement-service
+  template:
+    metadata:
+      labels:
+        app: disbursement-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector: { matchExpressions: [{key: app, operator: In, values: [disbursement-service]}] }
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: disbursement-service
+        image: loan-disbursement-service:latest
+        ports: [{containerPort: 8084}]
+        envFrom: [{configMapRef: {name: app-config}}, {secretRef: {name: app-secrets}}]
+        livenessProbe: {httpGet: {path: /actuator/health/liveness, port: 8084}, initialDelaySeconds: 30, periodSeconds: 10}
+        readinessProbe: {httpGet: {path: /actuator/health/readiness, port: 8084}, initialDelaySeconds: 30, periodSeconds: 10}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: disbursement-service-hpa, namespace: lending-prod}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: disbursement-service}
+  minReplicas: 3
+  maxReplicas: 30
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 75}}}]
+
+# ORCHESTRATOR SERVICE =========================================
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-orchestrator-service
+  namespace: lending-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: loan-orchestrator-service
+  template:
+    metadata:
+      labels:
+        app: loan-orchestrator-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector: { matchExpressions: [{key: app, operator: In, values: [loan-orchestrator-service]}] }
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: loan-orchestrator-service
+        image: loan-orchestrator-service:latest
+        ports: [{containerPort: 8081}]
+        envFrom: [{configMapRef: {name: app-config}}, {secretRef: {name: app-secrets}}]
+        livenessProbe: {httpGet: {path: /actuator/health/liveness, port: 8081}, initialDelaySeconds: 30, periodSeconds: 10}
+        readinessProbe: {httpGet: {path: /actuator/health/readiness, port: 8081}, initialDelaySeconds: 30, periodSeconds: 10}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: loan-orchestrator-service-hpa, namespace: lending-prod}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: loan-orchestrator-service}
+  minReplicas: 3
+  maxReplicas: 30
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 75}}}]

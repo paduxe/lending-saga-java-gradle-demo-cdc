@@ -1,0 +1,29 @@
+groups:
+  - name: LendingSagaAlerts
+    rules:
+      - alert: HighFraudRate
+        expr: rate(loans_fraud_blocked_total[1m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Phát hiện tần suất lừa đảo cao!"
+          description: "Tỷ lệ đơn vay bị chặn do fraud vượt ngưỡng trong 1 phút qua. Kiểm tra ngay AntiFraudService."
+
+      - alert: SagaFailureSpike
+        expr: rate(saga_failed_total[1m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Tỷ lệ Saga thất bại tăng cao!"
+          description: "Nhiều đơn vay đang bị REJECTED hoặc FAILED. Có thể do nghẽn network hoặc service KYC/Credit/Disbursement lỗi."
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.instance }} đang DOWN!"
+          description: "Service không phản hồi healthcheck. 'Réo điện thoại Dev lúc 2h sáng' ngay!"

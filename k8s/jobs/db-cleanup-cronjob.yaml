@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-archiver
+spec:
+  schedule: "0 2 * * *" # Chạy vào 2h sáng mỗi ngày
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: db-cleanup
+            image: postgres:16
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: password
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # GIẢI QUYẾT HẠN CHẾ #21: Xóa Outbox Event đã gởi thành công > 7 ngày
+              psql -h pgpool-kyc -U kyc -d kyc_db -c "DELETE FROM outbox_event WHERE status = 'PROCESSED' AND created_at < NOW() - INTERVAL '7 days';"
+              psql -h postgres-loan -U loan -d loan_db -c "DELETE FROM outbox_event WHERE status = 'PROCESSED' AND created_at < NOW() - INTERVAL '7 days';"
+          restartPolicy: OnFailure

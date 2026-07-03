@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: loan-service-hpa
+  namespace: lending-saga
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: loan-service
+  minReplicas: 3      # Lúc vắng vẻ nhất cũng phải duy trì 3 chú lính gác (HA Multi-Zone)
+  maxReplicas: 50     # Lúc có Siêu sale (100k TPS), tự động đẻ ra tối đa 50 Instance!
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70 # Bộ máy sẽ tự đẻ Container mới nếu CPU của Cụm vượt ngưỡng 70%
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80 # Tương tự với RAM

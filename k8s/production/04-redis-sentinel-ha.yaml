@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-sentinel
+  namespace: lending-prod
+spec:
+  serviceName: redis
+  replicas: 3 # GIẢI QUYẾT HẠN CHẾ #2: Redis HA với 3 nodes
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        command: ["redis-server", "--appendonly", "yes"]
+        ports:
+        - containerPort: 6379
+          name: redis
+      - name: sentinel
+        image: redis:7-alpine
+        command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+        ports:
+        - containerPort: 26379
+          name: sentinel

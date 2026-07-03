@@ -1,0 +1,26 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: production-kafka
+  namespace: lending-prod
+spec:
+  kafka:
+    version: 3.6.0
+    replicas: 3 # GIẢI QUYẾT HẠN CHẾ #4: 3-nodes Cluster
+    storage:
+      type: persistent-claim
+      size: 100Gi
+      class: premium-rwo # Multi-AZ storage
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      default.replication.factor: 3
+      min.insync.replicas: 2 # Đảm bảo Ack ALL (Hạn chế #4)
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 10Gi
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}

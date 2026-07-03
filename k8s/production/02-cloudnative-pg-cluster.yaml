@@ -1,0 +1,48 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: loan-db-cluster
+  namespace: lending-system
+spec:
+  # Số lượng Node trong cụm (1 Master Ghi, 2 Read-Replicas Đọc)
+  instances: 3
+  
+  # Yêu cầu K8s phân tán 3 cục DB này rải rác trên 3 máy chủ vật lý khác nhau
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: "kubernetes.io/hostname"
+
+  # Phân bổ tài nguyên khổng lồ cho Database
+  resources:
+    requests:
+      memory: "8Gi"
+      cpu: "4"
+    limits:
+      memory: "16Gi"
+      cpu: "8"
+
+  storage:
+    size: 1000Gi
+    storageClass: standard-rwo
+
+  # Cấu hình WAL (Write-Ahead Logging) siêu quan trọng để Debezium đọc CDC
+  postgresql:
+    parameters:
+      wal_level: logical
+      max_replication_slots: "10"
+      max_wal_senders: "10"
+      shared_buffers: "4GB"
+
+  # Cơ chế tự động Backup định kỳ chống Ransomware (Đẩy lên AWS S3)
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://lending-db-backups/loan-db/
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: SECRET_ACCESS_KEY
+      wal:
+        compression: gzip

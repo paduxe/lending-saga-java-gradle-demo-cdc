@@ -1,0 +1,17 @@
+# RULES FOR GEMINI AGENT - QUOTA OPTIMIZATION
+
+## 1. PHẠM VI HOẠT ĐỘNG (SCOPE)
+- KHÔNG ĐƯỢC tự ý quét (scan) toàn bộ codebase khi chưa có yêu cầu cụ thể.
+- Chỉ đọc các file được chỉ định hoặc các file liên quan trực tiếp đến lỗi đang xử lý (Tối đa 3 file/lần).
+- Ưu tiên sử dụng mô hình Gemini 3 Fast cho các giải thích lý thuyết.
+
+## 2. QUY TRÌNH LÀM VIỆC (WORKFLOW)
+- Trước khi thực hiện bất kỳ thay đổi code nào trên diện rộng (> 2 file), PHẢI liệt kê kế hoạch và đợi người dùng xác nhận "OK".
+- Nếu gặp lỗi vòng lặp (Looping) hoặc không giải quyết được sau 3 lần thử, PHẢI dừng lại và báo cáo lỗi cho người dùng, không được tự ý thử tiếp để tránh tốn Quota.
+
+## 3. GIAO TIẾP (COMMUNICATION)
+- Trả lời ngắn gọn, đi thẳng vào vấn đề.
+- Không tạo các Artifacts (hình ảnh, video quay màn hình) trừ khi thực sự cần thiết để minh họa lỗi giao diện.
+
+## 4. BẢO MẬT & CHI PHÍ
+- Ưu tiên đề xuất giải pháp để người dùng tự thực hiện (Manual) thay vì tự động thực hiện hoàn toàn (Autonomous) để tiết kiệm Baseline Quota.

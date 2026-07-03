@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "LoanCommandAvro",
+  "namespace": "com.example.lending.avro",
+  "fields": [
+    {"name": "commandId", "type": "string"},
+    {"name": "sagaId", "type": "string"},
+    {"name": "commandType", "type": "string"},
+    {"name": "aggregateId", "type": "string"},
+    {"name": "customerId", "type": "string"},
+    {"name": "amount", "type": "bytes", "logicalType": "decimal", "precision": 19, "scale": 2},
+    {"name": "productType", "type": "string"},
+    {"name": "simulateKycFail", "type": "boolean"},
+    {"name": "simulateCreditReject", "type": "boolean"},
+    {"name": "simulateDisbursementFail", "type": "boolean"},
+    {"name": "createdAt", "type": "long", "logicalType": "timestamp-millis"}
+  ]
+}

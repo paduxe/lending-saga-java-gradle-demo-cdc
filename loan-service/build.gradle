@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.jeasy:easy-rules-core:4.1.0'
+}

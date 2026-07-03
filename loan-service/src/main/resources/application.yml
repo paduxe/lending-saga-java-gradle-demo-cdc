@@ -1,0 +1,102 @@
+server:
+  port: 8081
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  application:
+    name: loan-service
+  graphql:
+    graphiql:
+      enabled: true
+  elasticsearch:
+    uris: http://elasticsearch:9200
+  security:
+    oauth2:
+      resourceserver:
+        jwt: # Đường dẫn để ứng dụng tải Chữ ký công khai từ Keycloak về tự Verify token nội bộ
+          issuer-uri: http://localhost:8086/realms/lending-realm 
+          jwk-set-uri: http://localhost:8086/realms/lending-realm/protocol/openid-connect/certs
+  # Bỏ đi datasource mặc định của Spring
+  # Khởi tạo 2 Shards tự định nghĩa
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  kafka:
+    bootstrap-servers: kafka:9092,kafka-2:9092,kafka-3:9092
+    properties:
+      schema.registry.url: http://schema-registry:8081
+    consumer:
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        specific.avro.reader: true
+    producer:
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    listener:
+      concurrency: 30 # Spawn 30 Threads để hút kiệt 30 Partitions song song
+
+app:
+  datasource:
+    shard1:
+      jdbc-url: jdbc:postgresql://postgres-loan:5432/loan_db
+      username: loan
+      password: loan
+      driver-class-name: org.postgresql.Driver
+    shard2:
+      jdbc-url: jdbc:postgresql://postgres-loan-2:5432/loan_db_2
+      username: loan2
+      password: loan2
+      driver-class-name: org.postgresql.Driver
+    shard1-replica:
+      jdbc-url: jdbc:postgresql://postgres-loan-replica:5432/loan_db
+      username: loan-read
+      password: loan-read
+      driver-class-name: org.postgresql.Driver
+    shard2-replica:
+      jdbc-url: jdbc:postgresql://postgres-loan-2-replica:5432/loan_db_2
+      username: loan2-read
+      password: loan2-read
+      driver-class-name: org.postgresql.Driver
+
+lending:
+  outbox:
+    mode: cdc
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  otlp:
+    tracing:
+      endpoint: http://jaeger-collector:4318/v1/traces
+
+grpc:
+  client:
+    kyc-service:
+      address: 'static://kyc-service:9092'
+      negotiationType: plaintext
+    credit-service:
+      address: 'static://credit-service:9093'
+      negotiationType: plaintext
+
+# 2. Cấu hình Ngưỡng chịu đựng (Anti DDoS / Spam)
+resilience4j:
+  ratelimiter:
+    instances:
+      createLoanApi:
+        limitForPeriod: 10000 # Chịu tải siêu cao: 10000 requests...
+        limitRefreshPeriod: 1s # ...trong vòng 1 GIÂY (Thay vì 3 req/phút)
+        timeoutDuration: 0s
+  circuitbreaker:
+    instances:
+      kycServiceStub:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10

@@ -1,0 +1,2 @@
+rootProject.name = 'lending-saga-demo'
+include 'loan-orchestrator-service', 'loan-service', 'kyc-service', 'credit-service', 'disbursement-service'

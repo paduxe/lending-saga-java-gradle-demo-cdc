@@ -1,0 +1,18 @@
+<configuration>
+    <!-- 3. PCI COMPLIANCE (Chống lộ Data nhạy cảm qua Màn hình Log) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 
+                Đoạn regex "replace(%msg)" cực kỳ tinh vi: 
+                Bộ lọc này sẽ chạy ngầm càn quét mọi Output in ra màn hình.
+                Nếu nó bắt được cụm "customerId=ABCXYZ", nó sẽ đập nát thành "customerId=***[MASKED_BY_PCI]***".
+                -> Engineer có cố tình in mã thẻ VISA cũng không lộ!
+            -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %replace(%msg){'(customerId=)([^,\)]+)', '$1***[MASKED_BY_PCI]***'} %n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>

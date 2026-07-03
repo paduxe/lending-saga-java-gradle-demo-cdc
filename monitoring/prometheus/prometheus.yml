@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'loan-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['loan-service:8081']
+
+  - job_name: 'loan-orchestrator-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['loan-orchestrator-service:8080']
+
+  - job_name: 'kyc-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['kyc-service:8082']
+
+  - job_name: 'credit-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['credit-service:8083']
+
+  - job_name: 'disbursement-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['disbursement-service:8084']

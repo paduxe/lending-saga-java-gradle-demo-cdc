@@ -1,0 +1,12 @@
+package com.example.lending.loan;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+@org.springframework.scheduling.annotation.EnableScheduling
+public class LoanServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(LoanServiceApplication.class, args);
+    }
+}

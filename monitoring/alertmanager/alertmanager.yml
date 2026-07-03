@@ -1,0 +1,15 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'prowl-2am-dev'
+
+receivers:
+  - name: 'prowl-2am-dev'
+    # Mocking a webhook for "2h sáng" alerts
+    webhook_configs:
+      - url: 'http://alert-gateway:8080/prowl-webhook'

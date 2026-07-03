@@ -1,0 +1,13 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: only-allow-orchestrator-to-others
+  namespace: lending-prod
+spec:
+  selector:
+    matchLabels:
+      app: kyc-service
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/lending-prod/sa/loan-orchestrator-sa"] # Chỉ cho phép Orchestrator gọi KYC

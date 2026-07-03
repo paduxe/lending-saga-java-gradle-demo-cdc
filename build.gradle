@@ -1,0 +1,116 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.4' apply false
+    id 'io.spring.dependency-management' version '1.1.6' apply false
+    id 'com.google.protobuf' version '0.9.4' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.example.lending'
+    version = '0.0.1-SNAPSHOT'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories { 
+        mavenCentral() 
+        maven { url "https://packages.confluent.io/maven/" }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        implementation 'redis.clients:jedis'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'io.micrometer:micrometer-registry-prometheus'
+        implementation 'io.micrometer:micrometer-tracing-bridge-otel' // Kích hoạt Distributed Tracing (Mắt thần truy vết)
+        implementation 'io.opentelemetry:opentelemetry-exporter-otlp' // Xuất log/traces sang Jaeger
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
+        implementation 'org.springframework.kafka:spring-kafka'
+        implementation 'org.postgresql:postgresql:42.7.4'
+        implementation 'com.fasterxml.jackson.core:jackson-databind'
+        
+        // Avro & Schema Registry
+        implementation 'org.apache.avro:avro:1.11.3'
+        implementation 'io.confluent:kafka-avro-serializer:7.6.0'
+        
+        // EasyRules for Anti-Fraud
+        implementation 'org.jeasy:easy-rules-core:4.1.0'
+        implementation 'org.jeasy:easy-rules-support:4.1.0'
+        implementation 'org.jeasy:easy-rules-mvel:4.1.0'
+        
+        // Flyway for Schema Management
+        implementation 'org.flywaydb:flyway-core'
+        implementation 'org.flywaydb:flyway-database-postgresql'
+        
+        // Resilience4j for Circuit Breaker
+        implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+
+        // gRPC Spring Boot Starter
+        implementation 'net.devh:grpc-spring-boot-starter:3.1.0.Release'
+        
+        // Distributed Lock
+        implementation 'net.javacrumbs.shedlock:shedlock-spring:5.16.0'
+        implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.16.0'
+
+        // Spring State Machine
+        implementation 'org.springframework.statemachine:spring-statemachine-core:3.2.1'
+
+        // GraphQL Support
+        implementation 'org.springframework.boot:spring-boot-starter-graphql'
+        testImplementation 'org.springframework.graphql:spring-graphql-test'
+
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        annotationProcessor 'org.projectlombok:lombok:1.18.34'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+        // Camunda Spring Boot Starter
+        implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:7.19.0'
+
+        // Camunda External Task Client
+        implementation 'org.camunda.bpm:camunda-external-task-client:7.19.0'
+    }
+
+    tasks.named('test') { useJUnitPlatform() }
+
+    if (project.name.contains('service') || project.name.contains('orchestrator')) {
+        apply plugin: 'com.google.protobuf'
+        
+        protobuf {
+            protoc {
+                artifact = "com.google.protobuf:protoc:3.25.1"
+            }
+            plugins {
+                grpc {
+                    artifact = "io.grpc:protoc-gen-grpc-java:1.62.2"
+                }
+            }
+            generateProtoTasks {
+                all()*.plugins {
+                    grpc {}
+                }
+            }
+        }
+
+        sourceSets {
+            main {
+                java {
+                    srcDirs 'build/generated/source/proto/main/grpc'
+                    srcDirs 'build/generated/source/proto/main/java'
+                }
+            }
+        }
+    }
+}
+

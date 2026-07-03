@@ -1,0 +1,62 @@
+server:
+  port: 8083
+  shutdown: graceful
+
+grpc:
+  server:
+    port: 9093
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  application:
+    name: credit-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8086/realms/lending-realm
+          jwk-set-uri: http://localhost:8086/realms/lending-realm/protocol/openid-connect/certs
+  datasource:
+    url: jdbc:postgresql://postgres-credit:5432/credit_db
+    username: credit
+    password: credit
+  data:
+    redis:
+      host: redis
+      port: 6379
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  kafka:
+    bootstrap-servers: kafka:9092,kafka-2:9092,kafka-3:9092
+    properties:
+      schema.registry.url: http://schema-registry:8081
+    consumer:
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        specific.avro.reader: true
+    producer:
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    listener:
+      concurrency: 30
+
+lending:
+  outbox:
+    mode: cdc
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  otlp:
+    tracing:
+      endpoint: http://jaeger-collector:4318/v1/traces

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-service
+  namespace: lending-saga
+  labels:
+    app: loan-service
+spec:
+  replicas: 3 # Khởi chạy mặc định 3 Instances để đảm bảo HA
+  selector:
+    matchLabels:
+      app: loan-service
+  template:
+    metadata:
+      labels:
+        app: loan-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8081"
+    spec:
+      containers:
+        - name: loan-service
+          image: lending-saga/loan-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          # Giới hạn cực hạn mức tiêu thụ Tài Nguyên (Chống chết chùm Node K8s)
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          # Liveness Probe: K8s tự động đập chết Container cũ và cấp Container mới nếu App bị Treo (Deadlock)
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          # Readiness Probe: K8s không bơm Traffic vào nếu App chưa khởi động xong kêt nối DB/Kafka
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 5

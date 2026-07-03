@@ -1,0 +1,42 @@
+# Gradle
+.gradle
+build
+**/build
+gradle-app.setting
+!gradle-wrapper.jar
+
+# IDE
+.idea
+*.iml
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sensitive / secrets
+.env
+.env.*
+*.pem
+*.key
+!*.pub
+
+# Java
+*.class
+*.jar
+*.war
+hs_err_pid*
+
+# Logs
+*.log
+logs/
+
+# Python (ai-gateway - Phase 1 sau)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/

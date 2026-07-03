@@ -1,0 +1,21 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-kyc-ha
+  namespace: lending-prod
+spec:
+  instances: 3 # GIẢI QUYẾT HẠN CHẾ #8: Master-Replica HA Cluster
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  storage:
+    size: 20Gi
+  postgresql:
+    parameters:
+      max_connections: "1000" # Sẵn sàng triệu user (Hạn chế #18)
+      shared_buffers: "512MB"
+      wal_level: "logical"
+  bootstrap:
+    initdb:
+      database: kyc_db
+      owner: kyc
+  backup:
+    retentionPolicy: "30d" # (Hạn chế #20)

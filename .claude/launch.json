@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "loan-orchestrator-service",
+      "runtimeExecutable": "/Users/dcpm/Documents/GFT-Projects/private/lending-saga-java-gradle-demo-cdc/gradlew",
+      "runtimeArgs": [":loan-orchestrator-service:bootRun"],
+      "port": 8080
+    },
+    {
+      "name": "loan-service",
+      "runtimeExecutable": "/Users/dcpm/Documents/GFT-Projects/private/lending-saga-java-gradle-demo-cdc/gradlew",
+      "runtimeArgs": [":loan-service:bootRun"],
+      "port": 8081
+    },
+    {
+      "name": "kyc-service",
+      "runtimeExecutable": "/Users/dcpm/Documents/GFT-Projects/private/lending-saga-java-gradle-demo-cdc/gradlew",
+      "runtimeArgs": [":kyc-service:bootRun"],
+      "port": 8082
+    },
+    {
+      "name": "credit-service",
+      "runtimeExecutable": "/Users/dcpm/Documents/GFT-Projects/private/lending-saga-java-gradle-demo-cdc/gradlew",
+      "runtimeArgs": [":credit-service:bootRun"],
+      "port": 8083
+    },
+    {
+      "name": "disbursement-service",
+      "runtimeExecutable": "/Users/dcpm/Documents/GFT-Projects/private/lending-saga-java-gradle-demo-cdc/gradlew",
+      "runtimeArgs": [":disbursement-service:bootRun"],
+      "port": 8084
+    }
+  ]
+}

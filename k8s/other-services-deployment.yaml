@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyc-service
+  namespace: lending-saga
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kyc-service
+  template:
+    metadata:
+      labels:
+        app: kyc-service
+    spec:
+      containers:
+        - name: kyc-service
+          image: lending-saga/kyc-service:latest
+          ports:
+            - containerPort: 8082
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-service
+  namespace: lending-saga
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: credit-service
+  template:
+    metadata:
+      labels:
+        app: credit-service
+    spec:
+      containers:
+        - name: credit-service
+          image: lending-saga/credit-service:latest
+          ports:
+            - containerPort: 8083
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disbursement-service
+  namespace: lending-saga
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: disbursement-service
+  template:
+    metadata:
+      labels:
+        app: disbursement-service
+    spec:
+      containers:
+        - name: disbursement-service
+          image: lending-saga/disbursement-service:latest
+          ports:
+            - containerPort: 8084
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-orchestrator-service
+  namespace: lending-saga
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: loan-orchestrator-service
+  template:
+    metadata:
+      labels:
+        app: loan-orchestrator-service
+    spec:
+      containers:
+        - name: loan-orchestrator-service
+          image: lending-saga/loan-orchestrator-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_DATA_REDIS_HOST
+              value: "redis-service"
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

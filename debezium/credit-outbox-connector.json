@@ -1,0 +1,31 @@
+{
+  "name": "credit-outbox-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres-credit",
+    "database.port": "5432",
+    "database.user": "credit",
+    "database.password": "credit",
+    "database.dbname": "credit_db",
+    "database.server.name": "credit_service",
+    "plugin.name": "pgoutput",
+    "publication.autocreate.mode": "filtered",
+    "topic.prefix": "credit_cdc",
+    "table.include.list": "public.outbox_event",
+    "slot.name": "credit_outbox",
+    "tombstones.on.delete": "false",
+    "transforms": "route",
+    "transforms.route.type": "io.debezium.transforms.outbox.EventRouter",
+    "transforms.route.table.field.event.id": "event_id",
+    "transforms.route.table.field.event.key": "aggregate_id",
+    "transforms.route.table.field.event.payload": "payload",
+    "transforms.route.table.field.event.type": "event_type",
+    "transforms.route.route.by.field": "topic_name",
+    "transforms.route.route.topic.replacement": "${routedByValue}",
+    "transforms.route.expand.json.payload": "true",
+    "max.batch.size": "10000",
+    "max.queue.size": "81920",
+    "producer.override.linger.ms": "10",
+    "producer.override.batch.size": "524288"
+  }
+}
