@@ -260,6 +260,25 @@ services:
     ports:
       - "8086:8080"
 
+  # AI GATEWAY (LendingOps AI - Phase 1)
+  ai-gateway:
+    build: { context: ./ai-gateway, dockerfile: Dockerfile }
+    ports:
+      - "8090:8090"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-opus-4-8}
+      - REDIS_URL=redis://redis:6379
+      - LOAN_SERVICE_URL=http://loan-service:8081
+      - ORCHESTRATOR_SERVICE_URL=http://loan-orchestrator-service:8080
+      - KYC_SERVICE_URL=http://kyc-service:8082
+      - CREDIT_SERVICE_URL=http://credit-service:8083
+      - DISBURSEMENT_SERVICE_URL=http://disbursement-service:8084
+    depends_on:
+      - redis
+      - loan-service
+      - loan-orchestrator-service
+
   # 🔍 DISTRIBUTED TRACING (Mắt thần Jaeger / Tempo)
   jaeger-collector:
     image: jaegertracing/all-in-one:1.50

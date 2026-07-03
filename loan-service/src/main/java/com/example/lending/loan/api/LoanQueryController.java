@@ -26,6 +26,13 @@ public class LoanQueryController {
         return ResponseEntity.ok(queryService.findLoansByCustomerCached(customerId));
     }
     
+    @GetMapping("/{loanId}")
+    public ResponseEntity<LoanApplicationDocument> getLoanById(@PathVariable String loanId) {
+        return queryService.findLoanById(loanId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/status/{status}")
     public ResponseEntity<Page<LoanApplicationDocument>> getLoansByStatus(
             @PathVariable String status,

@@ -46,4 +46,9 @@ public class LoanQueryService {
         log.info("📊 [CQRS ELASTICSEARCH] Đang quét khối lượng lớn Log theo trạng thái: {}", status);
         return elasticsearchRepository.findByStatus(status, pageable);
     }
+
+    public java.util.Optional<LoanApplicationDocument> findLoanById(String loanId) {
+        log.info("🔍 [CQRS ELASTICSEARCH] Tìm loan theo ID: {}", loanId);
+        return elasticsearchRepository.findById(loanId);
+    }
 }
