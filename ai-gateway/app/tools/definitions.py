@@ -39,14 +39,15 @@ TOOL_DEFINITIONS = [
         "name": "search_loans",
         "description": (
             "Search loans by status. "
-            "Valid statuses: PENDING, KYC_REQUESTED, CREDIT_REQUESTED, DISBURSEMENT_REQUESTED, COMPLETED, FAILED."
+            "Valid statuses: PENDING, KYC_REQUESTED, CREDIT_REQUESTED, "
+            "DISBURSEMENT_REQUESTED, COMPLETED, FAILED."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
                 "status": {"type": "string", "description": "Loan status to filter by"},
-                "page": {"type": "integer", "description": "Page number (0-based)", "default": 0},
-                "size": {"type": "integer", "description": "Page size", "default": 20},
+                "page": {"type": "integer", "description": "Page number (0-based, default 0)"},
+                "size": {"type": "integer", "description": "Page size (default 20)"},
             },
             "required": ["status"],
         },
@@ -57,14 +58,14 @@ TOOL_DEFINITIONS = [
         "input_schema": {
             "type": "object",
             "properties": {
-                "limit": {"type": "integer", "description": "Max events to return (default 20)", "default": 20},
+                "limit": {"type": "integer", "description": "Max events to return (default 20)"},
             },
             "required": [],
         },
     },
     {
         "name": "replay_dlq_event",
-        "description": "Mark a DLQ event as REPLAYED for manual retry processing. Use after investigating the root cause.",
+        "description": "Mark a DLQ event as REPLAYED for retry. Use after investigating the root cause.",
         "input_schema": {
             "type": "object",
             "properties": {
