@@ -7,6 +7,7 @@ from app.agents.loan_query import LoanQueryAgent
 from app.agents.saga import SagaInvestigatorAgent
 from app.agents.operations import OperationsAgent
 from app.config import settings
+from app.observability.tracker import get_tracker
 
 _client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
 _PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
@@ -43,7 +44,9 @@ class OrchestratorAgent:
         except (json.JSONDecodeError, AttributeError):
             agent_name = "loan_query"
 
-        return agent_name if agent_name in _AGENTS else "loan_query"
+        agent_name = agent_name if agent_name in _AGENTS else "loan_query"
+        get_tracker().record_routing(agent_name)
+        return agent_name
 
     async def run(self, messages: list[dict]) -> tuple[str, str]:
         """Route and run. Returns (agent_name, response_text)."""
