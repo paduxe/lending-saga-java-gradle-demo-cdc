@@ -27,26 +27,32 @@ def _key(session_id: str) -> str:
 
 
 async def load_history(session_id: str) -> list[dict[str, Any]]:
-    r = await get_redis()
-    raw = await r.get(_key(session_id))
-    if raw is None:
+    try:
+        r = await get_redis()
+        raw = await r.get(_key(session_id))
+        if raw is None:
+            return []
+        return json.loads(raw)
+    except Exception:
         return []
-    return json.loads(raw)
 
 
 async def append_turn(session_id: str, user_message: str, assistant_message: str) -> None:
-    r = await get_redis()
-    key = _key(session_id)
+    try:
+        r = await get_redis()
+        key = _key(session_id)
 
-    history = await load_history(session_id)
-    history.append({"role": "user", "content": user_message})
-    history.append({"role": "assistant", "content": assistant_message})
+        history = await load_history(session_id)
+        history.append({"role": "user", "content": user_message})
+        history.append({"role": "assistant", "content": assistant_message})
 
-    max_messages = settings.conversation_max_turns * 2
-    if len(history) > max_messages:
-        history = history[-max_messages:]
+        max_messages = settings.conversation_max_turns * 2
+        if len(history) > max_messages:
+            history = history[-max_messages:]
 
-    await r.set(key, json.dumps(history), ex=settings.conversation_ttl_seconds)
+        await r.set(key, json.dumps(history), ex=settings.conversation_ttl_seconds)
+    except Exception:
+        pass
 
 
 async def reset_session(session_id: str) -> None:

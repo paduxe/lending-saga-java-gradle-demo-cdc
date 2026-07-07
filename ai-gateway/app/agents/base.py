@@ -40,9 +40,7 @@ class AgentBase:
         self._all_tools: list[dict] | None = None
 
     def system_prompt(self) -> str:
-        if self._system_prompt is None:
-            self._system_prompt = (_PROMPTS_DIR / self.prompt_file).read_text(encoding="utf-8")
-        return self._system_prompt
+        return (_PROMPTS_DIR / self.prompt_file).read_text(encoding="utf-8")
 
     def _tools(self) -> list[dict]:
         if self._all_tools is None:
