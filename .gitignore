@@ -32,6 +32,7 @@ hs_err_pid*
 # Logs
 *.log
 logs/
+nohup.out
 
 # Python (ai-gateway - Phase 1 sau)
 __pycache__/
