@@ -3,11 +3,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.ab_test import router as ab_test_router
 from app.api.agent import router as agent_router
 from app.api.chat import router as chat_router
 from app.api.evals import router as evals_router
 from app.api.health import router as health_router
 from app.api.metrics import router as metrics_router
+from app.api.security import router as security_router
 from app.memory.conversation import close_redis
 from app.rag.store import get_store
 
@@ -35,3 +37,5 @@ app.include_router(chat_router, prefix="/api")
 app.include_router(agent_router, prefix="/api")
 app.include_router(metrics_router, prefix="/api")
 app.include_router(evals_router, prefix="/api")
+app.include_router(security_router, prefix="/api")
+app.include_router(ab_test_router, prefix="/api")
